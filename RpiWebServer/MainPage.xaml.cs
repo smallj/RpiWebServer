@@ -32,5 +32,11 @@ namespace RpiWebServer
             server.Initialise();
             
         }
+
+        private void ExitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            server.Dispose();
+            Application.Current.Exit();
+        }
     }
 }

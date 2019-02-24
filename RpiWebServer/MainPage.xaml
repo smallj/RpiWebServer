@@ -8,7 +8,10 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-
+    <Grid Height="480" Width="640" Background="Black">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBox x:Name="textMsg" Text="Hello" Margin="10" IsReadOnly="True" FontSize="24" HorizontalAlignment="Center" Foreground="White" Background="Black" BorderBrush="#007A7A7A"/>
+            <Button x:Name="ExitBtn" Content="Exit" Margin="10" HorizontalAlignment="Center" Foreground="White" Background="Black" BorderBrush="White" Click="ExitBtn_Click"/>
+        </StackPanel>
     </Grid>
 </Page>

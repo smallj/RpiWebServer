@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -7,20 +8,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using Windows.UI;
+using Windows.UI.Xaml;
 
 namespace RpiWebServer
 {
     class RpiHTTPServer
     {
-
+        private SenseHat _senseHat { get; set; }
         private StreamSocketListener listener; // the socket listner to listen for TCP requests
                                                // Note: this has to stay in scope!
-
         private const uint BufferSize = 8192; // this is the max size of the buffer in bytes 
+        private string DefaultPage;
 
         public RpiHTTPServer()
         {
             DefaultPage = File.ReadAllText("Assets\\mainpage.html");
+            _senseHat = new SenseHat();
+            this.ActivateSenseHat();
+        }
+
+        public void Dispose()
+        {
+            _senseHat.ClearDisplay();
+            _senseHat.UpdateDisplay();
+            _senseHat.Dispose();
+            listener.Dispose();
         }
 
         public void Initialise()
@@ -33,11 +46,18 @@ namespace RpiWebServer
             {
                 HandleRequest(sender, args);
             };
+
+        }
+
+        private async void ActivateSenseHat()
+        {
+            await _senseHat.Activate();
         }
 
         public async void HandleRequest( StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args )
         {
             StringBuilder request = new StringBuilder();
+            string responseHTML = "<html><body>ERROR</body></html>";
 
             // Handle a incoming request
             // First read the request
@@ -103,14 +123,25 @@ namespace RpiWebServer
 
             switch (request)
             {
-                case "red":
-                    // this will be called when the URL http://minwinpc/red is requested
-                    // this is where i will be able to control the colour of the LEDs
+                case "red": // GET /red
+                    _senseHat.FillDisplay(Colors.Red);
+                    break;
+                case "green": // GET /green
+                    _senseHat.FillDisplay(Colors.Green);
+                    break;
+                case "blue": // GET /blue
+                    _senseHat.FillDisplay(Colors.Blue);
+                    break;
+                case "yellow": // GET /yellow
+                    _senseHat.FillDisplay(Colors.Yellow);
+                    break;
+                case "clear": // GET /clear
+                    _senseHat.ClearDisplay();
                     break;
                 default:
-                    // this will be called when the Root (http://minwinpc/) is requested
                     break;
             }
+            _senseHat.UpdateDisplay();
 
             return response;
         }
