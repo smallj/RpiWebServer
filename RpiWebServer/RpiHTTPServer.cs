@@ -18,7 +18,10 @@ namespace RpiWebServer
 
         private const uint BufferSize = 8192; // this is the max size of the buffer in bytes 
 
-        public RpiHTTPServer() { }
+        public RpiHTTPServer()
+        {
+            DefaultPage = File.ReadAllText("Assets\\mainpage.html");
+        }
 
         public void Initialise()
         {
@@ -51,13 +54,15 @@ namespace RpiWebServer
                 }
             }
 
+            responseHTML = PrepareResponse(ParseRequest(request.ToString()));
+
             // Send a response back
             using (IOutputStream output = args.Socket.OutputStream)
             {
                 using (Stream response = output.AsStreamForWrite())
                 {
                     // For now we are just going to reply to anything with Hello World!
-                    byte[] bodyArray = Encoding.UTF8.GetBytes("<html><body>Hi, Honey!</body></html>");
+                    byte[] bodyArray = Encoding.UTF8.GetBytes(responseHTML);
 
                     var bodyStream = new MemoryStream(bodyArray);
 
@@ -73,8 +78,41 @@ namespace RpiWebServer
                     await bodyStream.CopyToAsync(response);
                     await response.FlushAsync();
                 }
+            }     
+        }
+
+        private string ParseRequest(string buffer)
+        {
+            string request = "ERROR";
+
+            string[] tokens = buffer.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+
+            if ( tokens[0] == "GET" )
+            {
+                request = tokens[1].Replace("/", "").ToLower();
             }
 
+            return request;
+        }
+
+        private string PrepareResponse(string request)
+        {
+            string response = "ERROR";
+
+            response = DefaultPage;
+
+            switch (request)
+            {
+                case "red":
+                    // this will be called when the URL http://minwinpc/red is requested
+                    // this is where i will be able to control the colour of the LEDs
+                    break;
+                default:
+                    // this will be called when the Root (http://minwinpc/) is requested
+                    break;
+            }
+
+            return response;
         }
     }
 }
