@@ -117,31 +117,57 @@ namespace RpiWebServer
 
         private string PrepareResponse(string request)
         {
-            string response = "ERROR";
-
-            response = DefaultPage;
+            StringBuilder response = StringBuilder.EmptyString();
+            string color = "#000000";
 
             switch (request)
             {
                 case "red": // GET /red
                     _senseHat.FillDisplay(Colors.Red);
+                    color = "#FF0000";
                     break;
                 case "green": // GET /green
                     _senseHat.FillDisplay(Colors.Green);
+                    color = "#00FF00";
                     break;
                 case "blue": // GET /blue
                     _senseHat.FillDisplay(Colors.Blue);
+                    color = "#0000FF";
                     break;
                 case "yellow": // GET /yellow
                     _senseHat.FillDisplay(Colors.Yellow);
+                    color = "#FF0000";
                     break;
                 case "clear": // GET /clear
                     _senseHat.ClearDisplay();
+                    color = "#000000";
                     break;
                 default:
                     break;
             }
             _senseHat.UpdateDisplay();
+
+            response.Append(@"<!DOCTYPE html>");
+            response.Append(@"<html>");
+            response.Append(@"<head>");
+            
+            response.Append(@"<style>");
+            response.Append(@"body {");
+            response.AppendFormat(@"background-color: %s;", color);
+            response.Append(@"}");
+            response.Append(@"</style>");
+
+	        response.Append(@"<title>On Air Light</title>");
+            response.Append(@"</head>");
+            response.Append(@"<body>");
+            response.Append(@"<h1>On Air Light</h1>");
+            response.Append(@"<button onclick=""window.location.href = 'http://jim-rpi/red';"">Red</button>");
+            response.Append(@"<button onclick=""window.location.href = 'http://jim-rpi/blue';"">Blue</button>");
+            response.Append(@"<button onclick=""window.location.href = 'http://jim-rpi/green';"">Green</button>");
+            response.Append(@"<button onclick=""window.location.href = 'http://jim-rpi/yellow';"">Yellow</button>");
+            response.Append(@"<button onclick=""window.location.href = 'http://jim-rpi/clear';"">Clear</button>");
+            response.Append(@"</body>");
+            response.Append(@"</html>");
 
             return response;
         }
